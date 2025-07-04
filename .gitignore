@@ -1,0 +1,23 @@
+# React frontend
+frontend/node_modules/
+frontend/build/
+
+# Flask backend
+backend/__pycache__/
+backend/.env
+backend/venv/
+backend/uploads/
+
+# OS files
+.DS_Store
+*.log
+
+# Python cache
+*.pyc
+__pycache__/
+
+# Jupyter (if any)
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
