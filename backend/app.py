@@ -5,10 +5,8 @@ import fitz  # PyMuPDF
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer, util
 from collections import Counter
-import torch
+import requests
 
 # 📍 Set NLTK data path
 nltk.data.path.append(os.path.join(os.path.dirname(__file__), 'nltk_data'))
@@ -32,23 +30,25 @@ def extract_text(pdf_path):
         return ""
 
 def match_keywords_semantically(jd_keywords, resume_keywords, threshold=0.7):
-    jd_embeddings = model.encode(jd_keywords, convert_to_tensor=True)
-    resume_embeddings = model.encode(resume_keywords, convert_to_tensor=True)
-    matched = []
-    for i, jd_word in enumerate(jd_keywords):
-        similarities = util.cos_sim(jd_embeddings[i], resume_embeddings)[0]
-        max_score = torch.max(similarities).item()
-        if max_score >= threshold:
-            matched.append(jd_word)
-    return matched
+    url = "https://nikhil255288-jd-matcher-api.hf.space/match"  # update this URL after HF deployment
+    payload = {
+        "jd_keywords": jd_keywords,
+        "resume_keywords": resume_keywords,
+        "threshold": threshold
+    }
+    try:
+        res = requests.post(url, json=payload)
+        res.raise_for_status()
+        return res.json().get("matched_keywords", [])
+    except Exception as e:
+        print(f"❌ Error calling HF API: {e}")
+        return []
 
 app = Flask(__name__)
 CORS(app)
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-model = SentenceTransformer('all-MiniLM-L6-v2')
 
 @app.route('/')
 def home():
@@ -74,11 +74,6 @@ def upload_files():
         if not jd_text.strip() or not resume_text.strip():
             return jsonify({'status': 'error', 'message': 'One or both PDFs are unreadable or empty'}), 400
 
-        jd_embed = model.encode([jd_text])
-        resume_embed = model.encode([resume_text])
-        similarity = cosine_similarity(jd_embed, resume_embed)[0][0]
-        match_score = round(float(similarity * 100), 2) 
-
         jd_keywords = extract_keywords(jd_text)
         resume_keywords = extract_keywords(resume_text)
 
@@ -86,17 +81,10 @@ def upload_files():
         missed_keywords = list(set(jd_keywords) - set(matched_keywords))
         resume_suggestions = missed_keywords[:5]
 
-        print(f"\n📥 JD: {jd_file.filename}")
-        print(f"📥 Resume: {resume_file.filename}")
-        print(f"✅ Match Score: {match_score}%")
-        print(f"🔁 Matched Keywords: {matched_keywords}")
-        print(f"❌ Missed Keywords: {missed_keywords}\n")
-
         return jsonify({
             'status': 'success',
             'jd_saved': jd_file.filename,
             'resume_saved': resume_file.filename,
-            'match_score': match_score,
             'jd_keywords': jd_keywords,
             'resume_keywords': resume_keywords,
             'matched_keywords': matched_keywords,
