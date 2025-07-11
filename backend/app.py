@@ -86,7 +86,7 @@ def upload_files():
         jd_embed = model.encode([jd_text])
         resume_embed = model.encode([resume_text])
         similarity = cosine_similarity(jd_embed, resume_embed)[0][0]
-        match_score = round(similarity * 100, 2)
+        match_score = round(float(similarity * 100), 2) 
 
         # Keyword-based matching
         jd_keywords = extract_keywords(jd_text)
