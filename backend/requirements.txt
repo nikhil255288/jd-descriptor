@@ -4,3 +4,6 @@ scikit-learn
 flask
 flask-cors
 PyMuPDF
+fastapi
+uvicorn[standard]
+torch
