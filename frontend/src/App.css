@@ -1,0 +1,92 @@
+/* App.css */
+
+body {
+  margin: 0;
+  background-color: #1e1e2f;
+  color: #f0f0f0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #2a2a40;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  margin-bottom: 40px;
+}
+
+input[type="file"] {
+  background-color: #1e1e2f;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+button {
+  padding: 12px;
+  background-color: #3a8efd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background-color: #2a6fd1;
+}
+
+.error {
+  color: #ff5e5e;
+  font-weight: bold;
+}
+
+.results {
+  background-color: #2d2d45;
+  padding: 25px;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.results h2, .results h3 {
+  color: #00ffcc;
+}
+
+.keyword-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.keyword-box span {
+  background-color: #3a3a5c;
+  color: #f0f0f0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.keyword-box span:hover {
+  background-color: #505075;
+}
+
+.keyword-box .highlight {
+  background-color: #00c28b;
+  color: #000;
+  font-weight: bold;
+}

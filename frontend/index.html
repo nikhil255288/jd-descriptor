@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JD Resume Matcher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .keyword-box {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 4px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+    }
+
+    .match {
+      background-color: #c7f5c0;
+      color: green;
+      font-weight: bold;
+    }
+
+    #results {
+      margin-top: 20px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>JD Resume Matcher</h1>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label>Upload JD (PDF):</label>
+    <input type="file" name="jd" required><br><br>
+
+    <label>Upload Resume (PDF):</label>
+    <input type="file" name="resume" required><br><br>
+
+    <button type="submit">Upload</button>
+  </form>
+
+  <div id="results" style="display: none;">
+    <h2>✅ Upload Successful</h2>
+    <p><strong>JD:</strong> <span id="jdFilename"></span></p>
+    <p><strong>Resume:</strong> <span id="resumeFilename"></span></p>
+    <p><strong>🧠 Match Score:</strong> <span id="matchScore"></span>%</p>
+
+    <h3>📌 JD Keywords:</h3>
+    <div id="jdKeywords"></div>
+
+    <h3>📄 Resume Keywords:</h3>
+    <div id="resumeKeywords"></div>
+
+    <h3>🔁 Matched Keywords:</h3>
+    <div id="matchedKeywords"></div>
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+          alert("❌ Error: " + result.error);
+          return;
+        }
+
+        // Show result section
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('jdFilename').textContent = result.jd_saved;
+        document.getElementById('resumeFilename').textContent = result.resume_saved;
+        document.getElementById('matchScore').textContent = result.match_score;
+
+        // Render keywords
+        renderKeywords(result.jd_keywords, 'jdKeywords');
+        renderKeywords(result.resume_keywords, 'resumeKeywords');
+        renderKeywords(result.matched_keywords, 'matchedKeywords', true);
+
+      } catch (err) {
+        console.error("Upload failed:", err);
+        alert("Upload failed. See console for details.");
+      }
+    });
+
+    function renderKeywords(keywords, containerId, highlight = false) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = ''; // Clear old
+      keywords.forEach(word => {
+        const span = document.createElement('span');
+        span.textContent = word;
+        span.className = 'keyword-box' + (highlight ? ' match' : '');
+        container.appendChild(span);
+      });
+    }
+  </script>
+
+</body>
+</html>
