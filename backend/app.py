@@ -12,6 +12,7 @@ import requests
 nltk.data.path.append(os.path.join(os.path.dirname(__file__), 'nltk_data'))
 
 # 🔁 NLTK setup
+nltk.download('stopwords', download_dir=nltk.data.path[0])
 stop_words = set(stopwords.words('english'))
 tokenizer = RegexpTokenizer(r'\w+')
 
@@ -30,17 +31,23 @@ def extract_text(pdf_path):
         return ""
 
 def match_keywords_semantically(jd_keywords, resume_keywords, threshold=0.7):
-    url = "https://nikhil255288-jd-matcher-api.hf.space/match"  # update this URL after HF deployment
+    # ✅ HF FastAPI backend endpoint (updated)
+    url = "https://nikhilnikhilrrthrty-jd-matcher-api.hf.space/match"
+
+    if not jd_keywords or not resume_keywords:
+        return []
+
     payload = {
         "jd_keywords": jd_keywords,
         "resume_keywords": resume_keywords,
         "threshold": threshold
     }
+
     try:
-        res = requests.post(url, json=payload)
-        res.raise_for_status()
-        return res.json().get("matched_keywords", [])
-    except Exception as e:
+        response = requests.post(url, json=payload, timeout=20)
+        response.raise_for_status()
+        return response.json().get("matched_keywords", [])
+    except requests.exceptions.RequestException as e:
         print(f"❌ Error calling HF API: {e}")
         return []
 
@@ -96,7 +103,7 @@ def upload_files():
 
     except Exception as e:
         print(f"💥 Internal Server Error: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': 'Internal Server Error', 'details': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
