@@ -31,8 +31,11 @@ def extract_text(pdf_path):
         return ""
 
 def match_keywords_semantically(jd_keywords, resume_keywords, threshold=0.7):
-    # ✅ HF FastAPI backend endpoint (updated)
     url = os.getenv("HF_MATCH_API")
+
+    if not url:
+        print("❌ HF_MATCH_API not set in environment variables")
+        return []
 
     if not jd_keywords or not resume_keywords:
         return []
@@ -52,7 +55,9 @@ def match_keywords_semantically(jd_keywords, resume_keywords, threshold=0.7):
         return []
 
 app = Flask(__name__)
-CORS(app)
+
+# ✅ Recommended CORS setup
+CORS(app, resources={r"/upload": {"origins": "*"}})
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
