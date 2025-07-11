@@ -32,7 +32,7 @@ def extract_text(pdf_path):
 
 def match_keywords_semantically(jd_keywords, resume_keywords, threshold=0.7):
     # ✅ HF FastAPI backend endpoint (updated)
-    url = "https://nikhilnikhilrrthrty-jd-matcher-api.hf.space/match"
+    url = os.getenv("HF_MATCH_API")
 
     if not jd_keywords or not resume_keywords:
         return []
